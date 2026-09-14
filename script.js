@@ -11,7 +11,7 @@
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTv3ZwrZ0bWiR0k0lOUm4Qo8oK4QFH6XiePNOMFyLsPteb4im0FOx7DFidcOJAeItdkccGbq2jce-bQ/pub?gid=0&single=true&output=csv';
 
   // ---------- SAMPLE CSV (built-in fallback) ----------
-  const SAMPLE_CSV = `Question_ID,Question_type_ID,Bible_Verse,Question_type,Question,Answer
+  const SAMPLE_CSV = `Question_ID,Question_Type_ID,Bible_Verse,Question_Type,Question,Answer
 1,1,John 3:16,Multiple Choice,"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.","John 3:16"
 2,2,Genesis 1:1,True/False,"In the beginning God created the heaven and the earth.","True"
 3,3,Psalm 23:1,Fill in the blank,"The Lord is my shepherd; I shall not _____.","want"
@@ -213,7 +213,7 @@
     }
 
     const q = filteredQuestions[currentIndex];
-    qTypeEl.textContent = q.Question_type || 'Question';
+    qTypeEl.textContent = q.Question_Type || 'Question';
     qVerseEl.textContent = q.Bible_Verse || '—';
     qTextEl.textContent = q.Question || '—';
 
@@ -254,7 +254,7 @@
     if (synth.speaking) synth.cancel();
 
     const q = filteredQuestions[currentIndex];
-    const textToRead = `${q.Question_type || ''}. ${q.Question || ''}`;
+    const textToRead = `${q.Question_Type || ''}. ${q.Question || ''}`;
     utterance = new SpeechSynthesisUtterance(textToRead);
     utterance.lang = 'en-US';
     utterance.rate = 0.95;
@@ -300,8 +300,15 @@
       const csvText = await response.text();
       */
 
-      // ---- Using built-in sample for reliability ----
-      const csvText = SAMPLE_CSV;
+      // ---- LIVE FETCH ----
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        csvText = await response.text();
+      } catch (fetchErr) {
+        console.warn('Live fetch failed, using sample data:', fetchErr);
+        csvText = SAMPLE_CSV;
+      }
 
       const rows = parseCSV(csvText);
       if (rows.length === 0) throw new Error('No data rows found');

@@ -288,52 +288,49 @@
     }
   }
 
-  // ---------- LOAD DATA (FETCH OR FALLBACK) ----------
-  async function loadData() {
-    loadingEl.classList.remove('hidden');
-    errorEl.classList.add('hidden');
-    try {
-      // ---- LIVE FETCH (uncomment when you have a real CSV URL) ----
-      /*
-      const response = await fetch(CSV_URL);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const csvText = await response.text();
-      */
+// ---------- LOAD DATA (FETCH FROM GOOGLE FORM CSV) ----------
+async function loadData() {
+  loadingEl.classList.remove('hidden');
+  errorEl.classList.add('hidden');
 
-      // ---- LIVE FETCH ----
-      try {
-        const response = await fetch(CSV_URL);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        csvText = await response.text();
-      } catch (fetchErr) {
-        console.warn('Live fetch failed, using sample data:', fetchErr);
-        csvText = SAMPLE_CSV;
-      }
+  let csvText;
 
-      const rows = parseCSV(csvText);
-      if (rows.length === 0) throw new Error('No data rows found');
+  try {
+    // ---- LIVE FETCH from published Google Form CSV ----
+    const response = await fetch(CSV_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    csvText = await response.text();
 
-      allQuestions = rows.map(r => {
-        const normalized = {};
-        Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
-        return normalized;
-      });
-
-      if (!allQuestions[0].hasOwnProperty('Bible_Verse') || !allQuestions[0].hasOwnProperty('Question')) {
-        throw new Error('CSV missing required columns');
-      }
-
-      populateDropdowns(allQuestions);
-      loadingEl.classList.add('hidden');
-
-    } catch (err) {
-      console.error(err);
-      loadingEl.classList.add('hidden');
-      errorEl.classList.remove('hidden');
-      errorEl.textContent = `⚠️ Could not load quiz data: ${err.message}. Please try again later.`;
-      startBtn.disabled = true;
-    }
+  } catch (fetchErr) {
+    console.warn('Live fetch failed, falling back to sample data:', fetchErr);
+    csvText = SAMPLE_CSV;   // graceful fallback
   }
+
+  try {
+    const rows = parseCSV(csvText);
+    if (rows.length === 0) throw new Error('No data rows found');
+
+    allQuestions = rows.map(r => {
+      const normalized = {};
+      Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
+      return normalized;
+    });
+
+    if (!allQuestions[0].hasOwnProperty('Bible_Verse') || !allQuestions[0].hasOwnProperty('Question')) {
+      throw new Error('CSV missing required columns');
+    }
+
+    populateDropdowns(allQuestions);
+    loadingEl.classList.add('hidden');
+
+  } catch (err) {
+    console.error(err);
+    loadingEl.classList.add('hidden');
+    errorEl.classList.remove('hidden');
+    errorEl.textContent = `⚠️ Could not load quiz data: ${err.message}. Please try again later.`;
+    startBtn.disabled = true;
+  }
+}
 
   // ---------- EVENT LISTENERS ----------
   startBtn.addEventListener('click', startQuiz);

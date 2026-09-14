@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>QuizSmart · Bible Quiz</title>
+  <style>
+    /* ---------- GLOBAL RESET & THEME ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    :root {
+      --light-blue: #e3f2fd;
+      --blue-soft: #bbdef5;
+      --blue-accent: #4a90e2;
+      --blue-deep: #2c6aa0;
+      --light-green: #e8f5e9;
+      --green-soft: #c8e6c9;
+      --green-accent: #66bb6a;
+      --white: #ffffff;
+      --shadow: 0 6px 16px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 20, 30, 0.08);
+      --radius-card: 24px;
+      --radius-btn: 40px;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f9ff 0%, #e6f7ec 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+      color: #1e2f4a;
+    }
+
+    /* main card container */
+    .app-container {
+      width: 100%;
+      max-width: 860px;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 1.8rem 1.5rem 2rem;
+      margin: 1rem 0 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(2px);
+      transition: all 0.2s;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--blue-deep);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 span {
+      background: var(--green-soft);
+      font-size: 1.2rem;
+      padding: 0.2rem 0.8rem;
+      border-radius: 100px;
+      font-weight: 400;
+      color: #1e4a2b;
+    }
+
+    .subhead {
+      color: #4f6f8f;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      border-left: 5px solid var(--green-accent);
+      padding-left: 0.75rem;
+      background: var(--light-green);
+      border-radius: 0 20px 20px 0;
+      padding: 0.6rem 1rem;
+      font-weight: 400;
+    }
+
+    /* ---------- DROPDOWN ROW ---------- */
+    .filter-section {
+      background: var(--light-blue);
+      border-radius: 36px;
+      padding: 1.8rem 1.2rem;
+      margin-bottom: 2rem;
+      box-shadow: inset 0 0 0 1px var(--blue-soft);
+    }
+
+    .filter-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 1rem 0.8rem;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      min-width: 120px;
+      flex: 1 0 120px;
+    }
+
+    .filter-item label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--blue-deep);
+      margin-bottom: 0.3rem;
+      margin-left: 0.5rem;
+    }
+
+    .filter-item select {
+      background: var(--white);
+      border: 1.5px solid var(--blue-soft);
+      border-radius: 40px;
+      padding: 0.7rem 1rem;
+      font-size: 0.95rem;
+      color: #1e2f4a;
+      outline: none;
+      transition: 0.15s;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234a90e2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 14px;
+    }
+
+    .filter-item select:focus {
+      border-color: var(--blue-accent);
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+    }
+
+    /* start button */
+    .start-btn {
+      background: var(--green-accent);
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 0.9rem 2.2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 6px 0 #3d8b40;
+      transition: all 0.08s ease;
+      cursor: pointer;
+      border: 1px solid #5cb860;
+      width: 100%;
+      max-width: 280px;
+      margin: 1rem auto 0;
+    }
+
+    .start-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #3d8b40;
+    }
+
+    .start-btn:disabled {
+      opacity: 0.6;
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 #3d8b40;
+      pointer-events: none;
+    }
+
+    /* ---------- QUIZ CARD ---------- */
+    .quiz-section {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .quiz-section.active {
+      display: flex;
+    }
+
+    .quiz-card {
+      background: var(--light-blue);
+      border-radius: 28px;
+      padding: 1.8rem 1.5rem;
+      box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.8), 0 4px 12px rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--blue-soft);
+      transition: 0.15s;
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .badge-type {
+      background: var(--green-soft);
+      color: #1d4a2a;
+      padding: 0.35rem 1rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .badge-verse {
+      background: var(--white);
+      border: 1px solid var(--blue-soft);
+      color: var(--blue-deep);
+      padding: 0.35rem 1rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge-verse::before {
+      content: "📖";
+      font-size: 1rem;
+      margin-right: 0.2rem;
+    }
+
+    .question-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #13273f;
+      margin-bottom: 1rem;
+      word-break: break-word;
+    }
+
+    .answer-box {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 1.2rem 1.5rem;
+      margin: 1rem 0 0.5rem;
+      border-left: 6px solid var(--green-accent);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+      color: #1e3a2e;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .answer-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #4f6f4f;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .answer-content {
+      font-weight: 500;
+    }
+
+    /* speaker + action row */
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .speaker-btn {
+      background: var(--white);
+      border: 1.5px solid var(--blue-soft);
+      border-radius: 40px;
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--blue-deep);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      flex: 1 0 auto;
+      max-width: 220px;
+    }
+
+    .speaker-btn:hover {
+      background: var(--light-blue);
+      border-color: var(--blue-accent);
+    }
+
+    .speaker-btn:active {
+      transform: scale(0.97);
+    }
+
+    .show-answer-btn {
+      background: var(--white);
+      border: 2px solid var(--green-accent);
+      border-radius: 40px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #256b2b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: 0.15s;
+      flex: 1 0 auto;
+      max-width: 220px;
+      box-shadow: 0 3px 0 #b8d9b8;
+    }
+
+    .show-answer-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 #b8d9b8;
+    }
+
+    .show-answer-btn.hidden-answer {
+      background: var(--green-soft);
+      border-color: var(--green-accent);
+    }
+
+    /* navigation row */
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 0.8rem;
+    }
+
+    .nav-btn {
+      background: var(--white);
+      border: 1.5px solid var(--blue-soft);
+      border-radius: 40px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--blue-deep);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      flex: 1;
+      max-width: 180px;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--light-blue);
+      border-color: var(--blue-accent);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(0.3);
+    }
+
+    .nav-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    /* progress bar */
+    .progress-container {
+      margin-top: 1.8rem;
+      background: var(--white);
+      border-radius: 40px;
+      padding: 0.3rem;
+      border: 1px solid var(--blue-soft);
+    }
+
+    .progress-bar-bg {
+      background: #e2ebf3;
+      border-radius: 40px;
+      height: 14px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--green-accent), #8bc34a);
+      border-radius: 40px;
+      transition: width 0.2s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--blue-deep);
+      letter-spacing: 0.01em;
+    }
+
+    /* loading & error */
+    .loading, .error-msg {
+      text-align: center;
+      padding: 2rem;
+      background: var(--light-blue);
+      border-radius: 36px;
+      font-weight: 500;
+      color: var(--blue-deep);
+    }
+
+    .error-msg {
+      background: #ffeaea;
+      color: #b33a3a;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 600px) {
+      .app-container {
+        padding: 1.2rem 1rem;
+        border-radius: 28px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .question-text {
+        font-size: 1.2rem;
+      }
+      .filter-grid {
+        gap: 0.8rem;
+      }
+      .filter-item {
+        min-width: 100%;
+      }
+      .action-row {
+        flex-direction: column;
+      }
+      .speaker-btn, .show-answer-btn {
+        max-width: 100%;
+        width: 100%;
+      }
+      .nav-btn {
+        max-width: 45%;
+        padding: 0.7rem 0.8rem;
+      }
+      .quiz-card {
+        padding: 1.2rem;
+      }
+      .badge-type, .badge-verse {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .nav-btn {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.5rem;
+      }
+    }
+
+    /* utility */
+    .hidden {
+      display: none !important;
+    }
+
+    .icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>📘 QuizSmart <span>Bible</span></h1>
+    <div class="subhead">Select a verse range, then start quizzing!</div>
+
+    <!-- ========== FILTER / START AREA ========== -->
+    <div id="filterPanel" class="filter-section">
+      <div class="filter-grid">
+        <div class="filter-item">
+          <label for="startChapter">Start chapter</label>
+          <select id="startChapter" aria-label="Start chapter"></select>
+        </div>
+        <div class="filter-item">
+          <label for="startVerse">Start verse</label>
+          <select id="startVerse" aria-label="Start verse"></select>
+        </div>
+        <div class="filter-item">
+          <label for="endChapter">End chapter</label>
+          <select id="endChapter" aria-label="End chapter"></select>
+        </div>
+        <div class="filter-item">
+          <label for="endVerse">End verse</label>
+          <select id="endVerse" aria-label="End verse"></select>
+        </div>
+      </div>
+      <button id="startQuizBtn" class="start-btn" disabled>
+        <span class="icon">▶</span> Start Quizzing!
+      </button>
+    </div>
+
+    <!-- ========== LOADING / ERROR ========== -->
+    <div id="loadingIndicator" class="loading">📥 Loading quiz data…</div>
+    <div id="errorContainer" class="error-msg hidden"></div>
+
+    <!-- ========== QUIZ DISPLAY ========== -->
+    <div id="quizPanel" class="quiz-section">
+      <!-- card -->
+      <div class="quiz-card">
+        <div class="question-meta">
+          <span class="badge-type" id="qType">—</span>
+          <span class="badge-verse" id="qVerse">—</span>
+        </div>
+        <div class="question-text" id="qText">—</div>
+        <div id="answerContainer" class="answer-box hidden">
+          <div class="answer-label">Answer</div>
+          <div class="answer-content" id="aText">—</div>
+        </div>
+
+        <div class="action-row">
+          <button id="speakBtn" class="speaker-btn" aria-label="Read question aloud">
+            <span class="icon">🔊</span> Read
+          </button>
+          <button id="showAnswerBtn" class="show-answer-btn hidden-answer">
+            <span class="icon">🔍</span> Show Answer
+          </button>
+        </div>
+      </div>
+
+      <!-- navigation -->
+      <div class="nav-row">
+        <button id="prevBtn" class="nav-btn" disabled>◀ Previous</button>
+        <button id="nextBtn" class="nav-btn">Next ▶</button>
+      </div>
+
+      <!-- progress -->
+      <div class="progress-container">
+        <div class="progress-bar-bg">
+          <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+        </div>
+        <div id="progressText" class="progress-text">0 / 0</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- CONFIG ----------
+      // Published Google Form CSV URL (sample — replace with your own CSV link)
+      // This is a placeholder that returns a valid CSV for demonstration.
+      // In a real scenario, replace with your published Google Form CSV URL.
+      const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGvXf9g2XfX7qF9yQZ8Wz1y6Xk8mN3pQ7rT5sV9wU2xY4zA6bC8dE0fG2hI4jK6lM8nO0pQ/export?format=csv&id=2PACX-1vTGvXf9g2XfX7qF9yQZ8Wz1y6Xk8mN3pQ7rT5sV9wU2xY4zA6bC8dE0fG2hI4jK6lM8nO0pQ'; 
+      // ⚠️ Above is a dummy. We'll instead embed sample data to make it work out of the box.
+      // To use your real Google Form CSV, uncomment the fetch and provide your URL.
+      
+      // ---------- SAMPLE CSV (fallback / built-in) ----------
+      const SAMPLE_CSV = `Question_ID,Question_type_ID,Bible_Verse,Question_type,Question,Answer
+1,1,John 3:16,Multiple Choice,"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.","John 3:16"
+2,2,Genesis 1:1,True/False,"In the beginning God created the heaven and the earth.","True"
+3,3,Psalm 23:1,Fill in the blank,"The Lord is my shepherd; I shall not _____.","want"
+4,1,Matthew 5:9,Multiple Choice,"Blessed are the peacemakers: for they shall be called the children of _____.","God"
+5,4,Romans 3:23,Short Answer,"For all have sinned, and come short of the glory of _____.","God"
+6,2,Exodus 20:3,True/False,"Thou shalt have no other gods before me.","True"
+7,1,Philippians 4:13,Multiple Choice,"I can do all things through _____ which strengtheneth me.","Christ"
+8,3,Proverbs 3:5,Fill in the blank,"Trust in the Lord with all thine heart; and lean not unto thine own _____.","understanding"
+9,4,John 14:6,Short Answer,"Jesus saith unto him, I am the way, the truth, and the _____.","life"
+10,1,Acts 1:8,Multiple Choice,"But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the _____.","earth"`;
+
+      // ---------- DOM refs ----------
+      const startChapter = document.getElementById('startChapter');
+      const startVerse = document.getElementById('startVerse');
+      const endChapter = document.getElementById('endChapter');
+      const endVerse = document.getElementById('endVerse');
+      const startBtn = document.getElementById('startQuizBtn');
+      const loadingEl = document.getElementById('loadingIndicator');
+      const errorEl = document.getElementById('errorContainer');
+      const filterPanel = document.getElementById('filterPanel');
+      const quizPanel = document.getElementById('quizPanel');
+
+      // quiz display elements
+      const qTypeEl = document.getElementById('qType');
+      const qVerseEl = document.getElementById('qVerse');
+      const qTextEl = document.getElementById('qText');
+      const answerContainer = document.getElementById('answerContainer');
+      const aTextEl = document.getElementById('aText');
+      const speakBtn = document.getElementById('speakBtn');
+      const showAnswerBtn = document.getElementById('showAnswerBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+
+      // ---------- STATE ----------
+      let allQuestions = [];          // full parsed array
+      let filteredQuestions = [];     // after chapter/verse filter
+      let currentIndex = 0;           // index in filteredQuestions
+      let answerVisible = false;
+      let synth = window.speechSynthesis;
+      let utterance = null;           // keep reference to avoid GC
+
+      // ---------- CSV PARSER (simple but robust) ----------
+      function parseCSV(text) {
+        const lines = text.trim().split(/\r?\n/);
+        if (lines.length < 2) return [];
+        
+        // detect delimiter (comma)
+        const headerLine = lines[0];
+        const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // parse with quote awareness (handles commas inside quotes)
+          const values = [];
+          let insideQuote = false;
+          let current = '';
+          for (let j = 0; j < line.length; j++) {
+            const ch = line[j];
+            if (ch === '"') {
+              if (insideQuote && line[j+1] === '"') {
+                current += '"';
+                j++; // skip next
+              } else {
+                insideQuote = !insideQuote;
+              }
+            } else if (ch === ',' && !insideQuote) {
+              values.push(current.trim());
+              current = '';
+            } else {
+              current += ch;
+            }
+          }
+          values.push(current.trim());
+          
+          // map to object
+          const row = {};
+          headers.forEach((h, idx) => {
+            row[h] = values[idx] || '';
+          });
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      // ---------- EXTRACT CHAPTER/VERSE FROM Bible_Verse (e.g., "John 3:16") ----------
+      function parseVerseReference(verseStr) {
+        if (!verseStr) return { chapter: NaN, verse: NaN };
+        // match typical patterns: "John 3:16", "Genesis 1:1", "Psalm 23:1"
+        const match = verseStr.match(/(\d+):(\d+)/);
+        if (match) {
+          return { chapter: parseInt(match[1], 10), verse: parseInt(match[2], 10) };
+        }
+        // fallback: try to find numbers
+        const nums = verseStr.match(/\d+/g);
+        if (nums && nums.length >= 2) {
+          return { chapter: parseInt(nums[0], 10), verse: parseInt(nums[1], 10) };
+        }
+        return { chapter: NaN, verse: NaN };
+      }
+
+      // ---------- POPULATE DROPDOWNS FROM DATA ----------
+      function populateDropdowns(questions) {
+        // collect unique chapters and verses (based on parsed numbers)
+        const chapterSet = new Set();
+        const verseMap = new Map(); // chapter -> Set of verses
+
+        questions.forEach(q => {
+          const ref = parseVerseReference(q.Bible_Verse);
+          if (!isNaN(ref.chapter)) {
+            chapterSet.add(ref.chapter);
+            if (!verseMap.has(ref.chapter)) verseMap.set(ref.chapter, new Set());
+            if (!isNaN(ref.verse)) verseMap.get(ref.chapter).add(ref.verse);
+          }
+        });
+
+        const chapters = Array.from(chapterSet).sort((a,b) => a - b);
+        // helper to fill a select with options
+        function fillSelect(selectEl, values, defaultVal) {
+          selectEl.innerHTML = '';
+          values.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            selectEl.appendChild(opt);
+          });
+          if (defaultVal && values.includes(defaultVal)) selectEl.value = defaultVal;
+        }
+
+        // fill chapter dropdowns
+        fillSelect(startChapter, chapters, chapters[0]);
+        fillSelect(endChapter, chapters, chapters[chapters.length-1]);
+
+        // function to update verse dropdown based on chapter selection
+        function updateVerseDropdown(chapterSelect, verseSelect, isStart) {
+          const ch = parseInt(chapterSelect.value, 10);
+          const verses = verseMap.has(ch) ? Array.from(verseMap.get(ch)).sort((a,b)=>a-b) : [];
+          if (verses.length === 0) {
+            verseSelect.innerHTML = '<option value="">—</option>';
+            return;
+          }
+          const prevVal = parseInt(verseSelect.value, 10);
+          verseSelect.innerHTML = '';
+          verses.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            verseSelect.appendChild(opt);
+          });
+          // set default
+          if (isStart) {
+            verseSelect.value = verses[0];
+          } else {
+            verseSelect.value = verses[verses.length-1];
+          }
+          // if previous valid and still exists, keep it
+          if (!isNaN(prevVal) && verses.includes(prevVal)) verseSelect.value = prevVal;
+        }
+
+        // initial verse population
+        updateVerseDropdown(startChapter, startVerse, true);
+        updateVerseDropdown(endChapter, endVerse, false);
+
+        // event listeners for chapter change
+        startChapter.addEventListener('change', () => updateVerseDropdown(startChapter, startVerse, true));
+        endChapter.addEventListener('change', () => updateVerseDropdown(endChapter, endVerse, false));
+
+        // enable start button
+        startBtn.disabled = false;
+      }
+
+      // ---------- FILTER QUESTIONS BY CHAPTER/VERSE RANGE ----------
+      function filterQuestions() {
+        const sCh = parseInt(startChapter.value, 10);
+        const sVs = parseInt(startVerse.value, 10);
+        const eCh = parseInt(endChapter.value, 10);
+        const eVs = parseInt(endVerse.value, 10);
+
+        if (isNaN(sCh) || isNaN(sVs) || isNaN(eCh) || isNaN(eVs)) return [];
+
+        return allQuestions.filter(q => {
+          const ref = parseVerseReference(q.Bible_Verse);
+          if (isNaN(ref.chapter) || isNaN(ref.verse)) return false;
+          
+          // compare (chapter, verse) tuples
+          const startKey = sCh * 1000 + sVs;  // safe for typical verse numbers
+          const endKey = eCh * 1000 + eVs;
+          const refKey = ref.chapter * 1000 + ref.verse;
+          return refKey >= startKey && refKey <= endKey;
+        });
+      }
+
+      // ---------- RENDER CURRENT QUESTION ----------
+      function renderQuestion() {
+        if (!filteredQuestions.length) {
+          // no questions — show message and hide quiz?
+          qTypeEl.textContent = '—';
+          qVerseEl.textContent = '—';
+          qTextEl.textContent = 'No questions in this range.';
+          answerContainer.classList.add('hidden');
+          showAnswerBtn.classList.add('hidden-answer');
+          answerVisible = false;
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          progressText.textContent = '0 / 0';
+          progressFill.style.width = '0%';
+          return;
+        }
+
+        const q = filteredQuestions[currentIndex];
+        // Question type
+        qTypeEl.textContent = q.Question_type || 'Question';
+        // Verse reference
+        qVerseEl.textContent = q.Bible_Verse || '—';
+        // Question text
+        qTextEl.textContent = q.Question || '—';
+        // Answer hidden on new question
+        answerContainer.classList.add('hidden');
+        showAnswerBtn.classList.remove('hidden-answer');
+        showAnswerBtn.innerHTML = '<span class="icon">🔍</span> Show Answer';
+        answerVisible = false;
+
+        // update progress
+        const total = filteredQuestions.length;
+        const currentNum = currentIndex + 1;
+        progressText.textContent = `${currentNum} / ${total}`;
+        progressFill.style.width = `${(currentNum / total) * 100}%`;
+
+        // update navigation buttons
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === total - 1;
+
+        // fill answer text (prepared but hidden)
+        aTextEl.textContent = q.Answer || '—';
+      }
+
+      // ---------- SHOW ANSWER TOGGLE ----------
+      function toggleAnswer() {
+        if (!filteredQuestions.length) return;
+        answerVisible = !answerVisible;
+        if (answerVisible) {
+          answerContainer.classList.remove('hidden');
+          showAnswerBtn.classList.add('hidden-answer');
+          showAnswerBtn.innerHTML = '<span class="icon">🙈</span> Hide Answer';
+        } else {
+          answerContainer.classList.add('hidden');
+          showAnswerBtn.classList.remove('hidden-answer');
+          showAnswerBtn.innerHTML = '<span class="icon">🔍</span> Show Answer';
+        }
+      }
+
+      // ---------- SPEECH (Web Speech API) ----------
+      function speakQuestion() {
+        if (!filteredQuestions.length) return;
+        // cancel any ongoing speech
+        if (synth.speaking) {
+          synth.cancel();
+        }
+        const q = filteredQuestions[currentIndex];
+        const textToRead = `${q.Question_type || ''}. ${q.Question || ''}`;
+        utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.95;
+        utterance.pitch = 1;
+        synth.speak(utterance);
+      }
+
+      // ---------- START QUIZ ----------
+      function startQuiz() {
+        filteredQuestions = filterQuestions();
+        currentIndex = 0;
+        answerVisible = false;
+
+        if (filteredQuestions.length === 0) {
+          // show message but still transition
+          filterPanel.classList.add('hidden');
+          quizPanel.classList.add('active');
+          renderQuestion(); // will show "no questions"
+          return;
+        }
+
+        filterPanel.classList.add('hidden');
+        quizPanel.classList.add('active');
+        renderQuestion();
+      }
+
+      // ---------- NAVIGATION ----------
+      function goPrev() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          renderQuestion();
+        }
+      }
+
+      function goNext() {
+        if (currentIndex < filteredQuestions.length - 1) {
+          currentIndex++;
+          renderQuestion();
+        }
+      }
+
+      // ---------- LOAD DATA (FETCH OR FALLBACK) ----------
+      async function loadData() {
+        loadingEl.classList.remove('hidden');
+        errorEl.classList.add('hidden');
+        try {
+          // 1) Try to fetch from Google Form CSV
+          // NOTE: For production, replace CSV_URL with your published CSV link.
+          // Here we use SAMPLE_CSV to guarantee it works without external dependency.
+          // Uncomment the fetch block below and comment out the sample assignment to use live data.
+          
+          // ---- LIVE FETCH (uncomment when you have a real CSV URL) ----
+          /*
+          const response = await fetch(CSV_URL);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const csvText = await response.text();
+          */
+          
+          // ---- Using built-in sample for reliability ----
+          const csvText = SAMPLE_CSV;
+          
+          const rows = parseCSV(csvText);
+          if (rows.length === 0) throw new Error('No data rows found');
+          
+          // normalize keys (trim)
+          allQuestions = rows.map(r => {
+            const normalized = {};
+            Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
+            return normalized;
+          });
+
+          // make sure required columns exist
+          if (!allQuestions[0].hasOwnProperty('Bible_Verse') || !allQuestions[0].hasOwnProperty('Question')) {
+            throw new Error('CSV missing required columns');
+          }
+
+          // populate dropdowns from verse references
+          populateDropdowns(allQuestions);
+          loadingEl.classList.add('hidden');
+
+        } catch (err) {
+          console.error(err);
+          loadingEl.classList.add('hidden');
+          errorEl.classList.remove('hidden');
+          errorEl.textContent = `⚠️ Could not load quiz data: ${err.message}. Please try again later.`;
+          startBtn.disabled = true;
+        }
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      startBtn.addEventListener('click', startQuiz);
+      showAnswerBtn.addEventListener('click', toggleAnswer);
+      prevBtn.addEventListener('click', goPrev);
+      nextBtn.addEventListener('click', goNext);
+      speakBtn.addEventListener('click', speakQuestion);
+
+      // cancel speech on page unload
+      window.addEventListener('beforeunload', () => {
+        if (synth.speaking) synth.cancel();
+      });
+
+      // also stop speech when leaving question
+      // (handled by renderQuestion? we cancel before new speak)
+      // but also add: on prev/next, cancel speech
+      const originalGoPrev = goPrev;
+      const originalGoNext = goNext;
+      window.goPrev = function() { if (synth.speaking) synth

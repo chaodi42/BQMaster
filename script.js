@@ -6,12 +6,11 @@
   'use strict';
 
   // ---------- CONFIG ----------
-  // Replace CSV_URL with your published Google Form CSV link to use live data.
-  // The fetch call is commented out below — the app currently uses SAMPLE_CSV.
+  // Published Google Form CSV URL
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTv3ZwrZ0bWiR0k0lOUm4Qo8oK4QFH6XiePNOMFyLsPteb4im0FOx7DFidcOJAeItdkccGbq2jce-bQ/pub?gid=0&single=true&output=csv';
 
-  // ---------- SAMPLE CSV (built-in fallback) ----------
-  const SAMPLE_CSV = `Question_ID,Question_Type_ID,Bible_Verse,Question_Type,Question,Answer
+  // ---------- SAMPLE CSV (fallback if fetch fails) ----------
+  const SAMPLE_CSV = `Question_ID,Question_type_ID,Bible_Verse,Question_type,Question,Answer
 1,1,John 3:16,Multiple Choice,"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.","John 3:16"
 2,2,Genesis 1:1,True/False,"In the beginning God created the heaven and the earth.","True"
 3,3,Psalm 23:1,Fill in the blank,"The Lord is my shepherd; I shall not _____.","want"
@@ -52,10 +51,9 @@
   let filteredQuestions = [];     // after chapter/verse filter
   let currentIndex = 0;           // index in filteredQuestions
   let answerVisible = false;
-  let synth = window.speechSynthesis;
-  let utterance = null;           // keep reference to avoid GC
+  const synth = window.speechSynthesis;
 
-  // ---------- CSV PARSER (simple but robust) ----------
+  // ---------- CSV PARSER ----------
   function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
     if (lines.length < 2) return [];
@@ -68,7 +66,7 @@
       const line = lines[i].trim();
       if (!line) continue;
 
-      // parse with quote awareness (handles commas inside quotes)
+      // parse with quote awareness
       const values = [];
       let insideQuote = false;
       let current = '';
@@ -90,7 +88,6 @@
       }
       values.push(current.trim());
 
-      // map to object
       const row = {};
       headers.forEach((h, idx) => {
         row[h] = values[idx] || '';
@@ -100,7 +97,7 @@
     return rows;
   }
 
-  // ---------- EXTRACT CHAPTER/VERSE FROM Bible_Verse (e.g., "John 3:16") ----------
+  // ---------- EXTRACT CHAPTER/VERSE FROM Bible_Verse ----------
   function parseVerseReference(verseStr) {
     if (!verseStr) return { chapter: NaN, verse: NaN };
     const match = verseStr.match(/(\d+):(\d+)/);
@@ -114,7 +111,7 @@
     return { chapter: NaN, verse: NaN };
   }
 
-  // ---------- POPULATE DROPDOWNS FROM DATA ----------
+  // ---------- POPULATE DROPDOWNS ----------
   function populateDropdowns(questions) {
     const chapterSet = new Set();
     const verseMap = new Map(); // chapter -> Set of verses
@@ -138,7 +135,7 @@
         opt.textContent = v;
         selectEl.appendChild(opt);
       });
-      if (defaultVal && values.includes(defaultVal)) selectEl.value = defaultVal;
+      if (defaultVal !== undefined && values.includes(defaultVal)) selectEl.value = defaultVal;
     }
 
     fillSelect(startChapter, chapters, chapters[0]);
@@ -204,6 +201,7 @@
       qTextEl.textContent = 'No questions in this range.';
       answerContainer.classList.add('hidden');
       showAnswerBtn.classList.add('hidden-answer');
+      showAnswerBtn.innerHTML = '<span class="icon">🔍</span> Show Answer';
       answerVisible = false;
       prevBtn.disabled = true;
       nextBtn.disabled = true;
@@ -213,7 +211,7 @@
     }
 
     const q = filteredQuestions[currentIndex];
-    qTypeEl.textContent = q.Question_Type || 'Question';
+    qTypeEl.textContent = q.Question_type || 'Question';
     qVerseEl.textContent = q.Bible_Verse || '—';
     qTextEl.textContent = q.Question || '—';
 
@@ -248,18 +246,55 @@
     }
   }
 
-  // ---------- SPEECH (Web Speech API) ----------
+  // ---------- SPEECH (Web Speech API) with pauses ----------
+  // Sequence: Question_type → 3s pause → "Question" → 2s pause → Question content
   function speakQuestion() {
     if (!filteredQuestions.length) return;
+
+    // Cancel any ongoing speech
     if (synth.speaking) synth.cancel();
 
     const q = filteredQuestions[currentIndex];
-    const textToRead = `${q.Question_Type || ''}. ${q.Question || ''}`;
-    utterance = new SpeechSynthesisUtterance(textToRead);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    synth.speak(utterance);
+    const questionType = (q.Question_type || '').trim();
+    const questionText = (q.Question || '').trim();
+
+    // Helper to build an utterance with consistent settings
+    function makeUtterance(text) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.95;
+      u.pitch = 1;
+      return u;
+    }
+
+    // If there's no question type, just read the question content after 2s
+    if (!questionType) {
+      setTimeout(() => {
+        synth.speak(makeUtterance(questionText));
+      }, 2000);
+      return;
+    }
+
+    // Step 1: Speak question type
+    const typeUtterance = makeUtterance(questionType);
+
+    // When type finishes speaking → wait 3s → speak "Question"
+    typeUtterance.onend = function() {
+      setTimeout(function() {
+        const labelUtterance = makeUtterance('Question');
+
+        // When "Question" finishes → wait 2s → speak content
+        labelUtterance.onend = function() {
+          setTimeout(function() {
+            synth.speak(makeUtterance(questionText));
+          }, 2000);
+        };
+
+        synth.speak(labelUtterance);
+      }, 3000);
+    };
+
+    synth.speak(typeUtterance);
   }
 
   // ---------- START QUIZ ----------
@@ -277,6 +312,7 @@
   function goPrev() {
     if (currentIndex > 0) {
       currentIndex--;
+      if (synth.speaking) synth.cancel();
       renderQuestion();
     }
   }
@@ -284,53 +320,59 @@
   function goNext() {
     if (currentIndex < filteredQuestions.length - 1) {
       currentIndex++;
+      if (synth.speaking) synth.cancel();
       renderQuestion();
     }
   }
 
-// ---------- LOAD DATA (FETCH FROM GOOGLE FORM CSV) ----------
-async function loadData() {
-  loadingEl.classList.remove('hidden');
-  errorEl.classList.add('hidden');
+  // ---------- LOAD DATA (FETCH FROM GOOGLE FORM CSV) ----------
+  async function loadData() {
+    loadingEl.classList.remove('hidden');
+    errorEl.classList.add('hidden');
 
-  let csvText;
+    let csvText;
 
-  try {
-    // ---- LIVE FETCH from published Google Form CSV ----
-    const response = await fetch(CSV_URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    csvText = await response.text();
-
-  } catch (fetchErr) {
-    console.warn('Live fetch failed, falling back to sample data:', fetchErr);
-    csvText = SAMPLE_CSV;   // graceful fallback
-  }
-
-  try {
-    const rows = parseCSV(csvText);
-    if (rows.length === 0) throw new Error('No data rows found');
-
-    allQuestions = rows.map(r => {
-      const normalized = {};
-      Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
-      return normalized;
-    });
-
-    if (!allQuestions[0].hasOwnProperty('Bible_Verse') || !allQuestions[0].hasOwnProperty('Question')) {
-      throw new Error('CSV missing required columns');
+    // ---- Try live fetch first, fall back to sample data ----
+    try {
+      const response = await fetch(CSV_URL);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      csvText = await response.text();
+      if (!csvText || csvText.trim().length === 0) {
+        throw new Error('Empty response from CSV URL');
+      }
+    } catch (fetchErr) {
+      console.warn('Live fetch failed, falling back to sample data:', fetchErr);
+      csvText = SAMPLE_CSV;
     }
 
-    populateDropdowns(allQuestions);
-    loadingEl.classList.add('hidden');
+    // ---- Parse and populate ----
+    try {
+      const rows = parseCSV(csvText);
+      if (rows.length === 0) throw new Error('No data rows found');
 
-  } catch (err) {
-    console.error(err);
-    loadingEl.classList.add('hidden');
-    errorEl.classList.remove('hidden');
-    errorEl.textContent = `⚠️ Could not load quiz data: ${err.message}. Please try again later.`;
-    startBtn.disabled = true;
+      allQuestions = rows.map(r => {
+        const normalized = {};
+        Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
+        return normalized;
+      });
+
+      // Sanity check for required columns
+      const first = allQuestions[0];
+      if (!first.hasOwnProperty('Bible_Verse') || !first.hasOwnProperty('Question')) {
+        throw new Error('CSV missing required columns (Bible_Verse / Question)');
+      }
+
+      populateDropdowns(allQuestions);
+      loadingEl.classList.add('hidden');
+
+    } catch (err) {
+      console.error(err);
+      loadingEl.classList.add('hidden');
+      errorEl.classList.remove('hidden');
+      errorEl.textContent = `⚠️ Could not load quiz data: ${err.message}. Please try again later.`;
+      startBtn.disabled = true;
+    }
   }
-}
 
   // ---------- EVENT LISTENERS ----------
   startBtn.addEventListener('click', startQuiz);

@@ -131,7 +131,5 @@ MIT License — free to use, modify, and distribute.
 
 ## 🙏 Acknowledgements
 
-- Question data sourced from user-contributed Bible quiz content
-- Design inspired by modern mobile quiz apps and Duolingo's friendly palette
-- Built with zero frameworks — just the web platform
+
 

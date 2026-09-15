@@ -32,6 +32,7 @@
   const loadingEl = document.getElementById('loadingIndicator');
   const errorEl = document.getElementById('errorContainer');
   const filterPanel = document.getElementById('filterPanel');
+  const subheadBanner = document.getElementById('subheadBanner');
   const quizPanel = document.getElementById('quizPanel');
   const startRandomBtn = document.getElementById('startRandomBtn');
   const stopSpeakBtn = document.getElementById('stopSpeakBtn');
@@ -350,11 +351,13 @@
     currentIndex = 0;
     answerVisible = false;
 
+    // Hide the banner + filter panel, show the quiz
+    subheadBanner.classList.add('hidden');
     filterPanel.classList.add('hidden');
     quizPanel.classList.add('active');
     renderQuestion();
   }
-  // ---------- START OVER ----------
+   // ---------- START OVER ----------
   function startOver() {
     // Stop any ongoing speech
     stopSpeaking();
@@ -371,11 +374,11 @@
     progressFill.style.width = '0%';
     progressText.textContent = '0 / 0';
 
-    // Switch back to the filter panel
+    // Show the banner + filter panel again, hide the quiz
+    subheadBanner.classList.remove('hidden');
     quizPanel.classList.remove('active');
     filterPanel.classList.remove('hidden');
   }
-   
   // ---------- NAVIGATION ----------
   function goPrev() {
     if (currentIndex > 0) {

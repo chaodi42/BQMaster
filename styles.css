@@ -172,6 +172,35 @@ h1 span {
   pointer-events: none;
 }
 
+/* start button group (Start Quizzing + Random Order) */
+.start-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.start-btn-group .start-btn {
+  margin: 0;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+
+.start-btn-random {
+  background: var(--blue-accent);
+  border-color: #3a80d2;
+  box-shadow: 0 6px 0 #2c6aa0;
+}
+
+.start-btn-random:active {
+  box-shadow: 0 2px 0 #2c6aa0;
+}
+
+.start-btn-random:disabled {
+  box-shadow: 0 3px 0 #2c6aa0;
+}
+
 /* ---------- QUIZ CARD ---------- */
 .quiz-section {
   display: none;
@@ -306,6 +335,18 @@ h1 span {
   transform: scale(0.97);
 }
 
+/* stop speaking button */
+.stop-btn {
+  color: #b33a3a;
+  border-color: #f0c6c6;
+  background: #fff5f5;
+}
+
+.stop-btn:hover {
+  background: #ffe8e8;
+  border-color: #e88a8a;
+}
+
 .show-answer-btn {
   background: var(--white);
   border: 2px solid var(--green-accent);
@@ -411,6 +452,42 @@ h1 span {
   letter-spacing: 0.01em;
 }
 
+/* ---------- START OVER button ---------- */
+.start-over-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+.start-over-btn {
+  background: var(--white);
+  border: 1.5px solid var(--blue-soft);
+  border-radius: var(--radius-btn);
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--blue-deep);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: 0.15s;
+  box-shadow: 0 3px 0 var(--blue-soft);
+  width: 100%;
+  max-width: 280px;
+}
+
+.start-over-btn:hover {
+  background: var(--light-blue);
+  border-color: var(--blue-accent);
+}
+
+.start-over-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--blue-soft);
+}
+
 /* loading & error */
 .loading, .error-msg {
   text-align: center;
@@ -461,29 +538,40 @@ h1 span {
   .badge-type, .badge-verse {
     font-size: 0.75rem;
   }
+
   /* Shrink the start buttons on mobile */
+  .start-btn-group {
+    flex-direction: column;
+  }
   .start-btn-group .start-btn {
+    max-width: 100%;
     padding: 0.35rem 1rem;
     font-size: 0.95rem;
     box-shadow: 0 3px 0 #3d8b40;
     min-height: unset;
   }
-
   .start-btn-group .start-btn-random {
     box-shadow: 0 3px 0 #2c6aa0;
   }
-
   .start-btn-group .start-btn:active {
     transform: translateY(2px);
     box-shadow: 0 1px 0 #3d8b40;
   }
-
   .start-btn-group .start-btn-random:active {
     box-shadow: 0 1px 0 #2c6aa0;
   }
-
   .start-btn-group .start-btn .icon {
     font-size: 0.95rem;
+  }
+
+  /* Shrink Start Over button on mobile */
+  .start-over-btn {
+    padding: 0.45rem 1.2rem;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 0 var(--blue-soft);
+  }
+  .start-over-btn:active {
+    transform: translateY(2px);
   }
 }
 
@@ -502,53 +590,4 @@ h1 span {
 .icon {
   font-size: 1.2rem;
   line-height: 1;
-}
-.start-btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.start-btn-group .start-btn {
-  margin: 0;
-  flex: 1 1 200px;
-  max-width: 280px;
-}
-
-.start-btn-random {
-  background: var(--blue-accent);
-  border-color: #3a80d2;
-  box-shadow: 0 6px 0 #2c6aa0;
-}
-
-.start-btn-random:active {
-  box-shadow: 0 2px 0 #2c6aa0;
-}
-
-.start-btn-random:disabled {
-  box-shadow: 0 3px 0 #2c6aa0;
-}
-
-/* ---------- stop button ---------- */
-.stop-btn {
-  color: #b33a3a;
-  border-color: #f0c6c6;
-  background: #fff5f5;
-}
-
-.stop-btn:hover {
-  background: #ffe8e8;
-  border-color: #e88a8a;
-}
-
-/* ---------- RESPONSIVE tweak for 3-button action row ---------- */
-@media (max-width: 600px) {
-  .start-btn-group {
-    flex-direction: column;
-  }
-  .start-btn-group .start-btn {
-    max-width: 100%;
-  }
 }

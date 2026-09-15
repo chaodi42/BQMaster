@@ -1,12 +1,12 @@
-# QuizSmart · Bible Quiz — User Guide
+# BQMaster · Bible Quiz — User Guide
 
-A complete guide to using the QuizSmart Bible Quiz app on any device.
+A complete guide to using the BQMaster Bible Quiz app on any device.
 
 ---
 
-## 📖 What Is QuizSmart?
+## 📖 What Is BQMaster?
 
-QuizSmart is a simple Bible quiz app that helps you test and grow your knowledge of Scripture. You choose a range of Bible verses, and the app shows you quiz questions based on that range. Each question comes with a Bible verse reference and an answer you can reveal with one tap.
+BQMaster is a simple Bible quiz app that helps you test and grow your knowledge of Scripture. You choose a range of Bible verses, and the app shows you quiz questions based on that range. Each question comes with a Bible verse reference and an answer you can reveal with one tap.
 
 The app also **reads the questions aloud**, so you can listen instead of read — great for hands-free studying, group quizzes, or accessibility.
 
@@ -14,7 +14,7 @@ The app also **reads the questions aloud**, so you can listen instead of read �
 
 ## 🖥️ Getting to the App
 
-Open your web browser (Chrome, Safari, Edge, or Firefox) and go to the QuizSmart URL: https://<your-username>.github.io/<your-repo-name>/
+Open your web browser (Chrome, Safari, Edge, or Firefox) and go to the BQMaster URL: https://<your-username>.github.io/<your-repo-name>/
 
 No installation or sign-up is needed. The app runs entirely in your browser.
 
@@ -22,7 +22,7 @@ No installation or sign-up is needed. The app runs entirely in your browser.
 
 ## 🚦 The Two Screens
 
-QuizSmart has two main screens:
+BQMaster has two main screens:
 
 1. **Setup Screen** — where you choose a verse range
 2. **Quiz Screen** — where questions are displayed
@@ -141,9 +141,9 @@ If you want to choose a different verse range and start again, tap the **↺ Sta
 
 ---
 
-## 📱 Using QuizSmart on Different Devices
+## 📱 Using BQMaster on Different Devices
 
-QuizSmart works on any modern device:
+BQMaster works on any modern device:
 
 | Device | Experience |
 |---|---|
@@ -195,7 +195,7 @@ Not from the app interface. The speech rate is set to a natural pace. If you nee
 
 ## 💡 Tips for Group Study
 
-QuizSmart is great for small-group Bible study or family devotions:
+BQMaster is great for small-group Bible study or family devotions:
 
 - **Project the screen** on a TV or large monitor so everyone can see.
 - Let **one person tap Read** so the group hears the question together.
@@ -207,11 +207,11 @@ QuizSmart is great for small-group Bible study or family devotions:
 
 ## 🔒 Privacy
 
-QuizSmart does not collect, store, or transmit any personal information. It runs entirely in your browser and only reads the quiz data from the published Google Sheet.
+BQMaster does not collect, store, or transmit any personal information. It runs entirely in your browser and only reads the quiz data from the published Google Sheet.
 
 ---
 
 ## 📝 Feedback
 
-If you have suggestions for improving QuizSmart — new features, better voices, or a different layout — send email to dichao.bnu@gmail.com. Enjoy quizzing! 📘
+If you have suggestions for improving BQMaster — new features, better voices, or a different layout — send email to <dichao.bnu@gmail.com>. Enjoy quizzing! 📘
 

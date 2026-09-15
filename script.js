@@ -35,6 +35,7 @@
   const quizPanel = document.getElementById('quizPanel');
   const startRandomBtn = document.getElementById('startRandomBtn');
   const stopSpeakBtn = document.getElementById('stopSpeakBtn');
+  const startOverBtn = document.getElementById('startOverBtn');
 
   // quiz display elements
   const qTypeEl = document.getElementById('qType');
@@ -353,6 +354,28 @@
     quizPanel.classList.add('active');
     renderQuestion();
   }
+  // ---------- START OVER ----------
+  function startOver() {
+    // Stop any ongoing speech
+    stopSpeaking();
+
+    // Reset quiz state
+    filteredQuestions = [];
+    currentIndex = 0;
+    answerVisible = false;
+
+    // Reset answer visibility & progress display
+    answerContainer.classList.add('hidden');
+    showAnswerBtn.classList.remove('hidden-answer');
+    showAnswerBtn.innerHTML = '<span class="icon">🔍</span> Show Answer';
+    progressFill.style.width = '0%';
+    progressText.textContent = '0 / 0';
+
+    // Switch back to the filter panel
+    quizPanel.classList.remove('active');
+    filterPanel.classList.remove('hidden');
+  }
+   
   // ---------- NAVIGATION ----------
   function goPrev() {
     if (currentIndex > 0) {
@@ -433,6 +456,7 @@
   nextBtn.addEventListener('click', goNext);
   speakBtn.addEventListener('click', speakQuestion);
   stopSpeakBtn.addEventListener('click', stopSpeaking); 
+  startOverBtn.addEventListener('click', startOver);
    
   window.addEventListener('beforeunload', () => {
     if (synth.speaking) synth.cancel();

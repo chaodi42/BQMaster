@@ -461,6 +461,30 @@ h1 span {
   .badge-type, .badge-verse {
     font-size: 0.75rem;
   }
+  /* Shrink the start buttons on mobile */
+  .start-btn-group .start-btn {
+    padding: 0.35rem 1rem;
+    font-size: 0.95rem;
+    box-shadow: 0 3px 0 #3d8b40;
+    min-height: unset;
+  }
+
+  .start-btn-group .start-btn-random {
+    box-shadow: 0 3px 0 #2c6aa0;
+  }
+
+  .start-btn-group .start-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #3d8b40;
+  }
+
+  .start-btn-group .start-btn-random:active {
+    box-shadow: 0 1px 0 #2c6aa0;
+  }
+
+  .start-btn-group .start-btn .icon {
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 380px) {

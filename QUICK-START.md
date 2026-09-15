@@ -1,4 +1,4 @@
-# QuizSmart — Quick Start
+# BQMaster — Quick Start
 
 A 30-second guide to using the app.
 
@@ -6,7 +6,7 @@ A 30-second guide to using the app.
 
 ## 1. Open the app
 
-Visit the QuizSmart URL in any browser.
+Visit the BQMaster URL in any browser.
 
 ---
 

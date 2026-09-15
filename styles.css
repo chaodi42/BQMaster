@@ -591,3 +591,35 @@ h1 span {
   font-size: 1.2rem;
   line-height: 1;
 }
+
+/* ---------- MOBILE: force compact start buttons ---------- */
+@media (max-width: 600px) {
+  .start-btn-group .start-btn,
+  .filter-section .start-btn-group .start-btn,
+  .start-btn-group button.start-btn {
+    padding: 0.3rem 0.9rem !important;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    gap: 0.35rem !important;
+    box-shadow: 0 2px 0 #3d8b40 !important;
+  }
+
+  .start-btn-group .start-btn-random,
+  .filter-section .start-btn-group .start-btn-random,
+  .start-btn-group button.start-btn-random {
+    box-shadow: 0 2px 0 #2c6aa0 !important;
+  }
+
+  .start-btn-group .start-btn:active,
+  .start-btn-group .start-btn-random:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0 0 0 transparent !important;
+  }
+
+  .start-btn-group .start-btn .icon {
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+  }
+}

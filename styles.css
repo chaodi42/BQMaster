@@ -479,3 +479,52 @@ h1 span {
   font-size: 1.2rem;
   line-height: 1;
 }
+.start-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.start-btn-group .start-btn {
+  margin: 0;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+
+.start-btn-random {
+  background: var(--blue-accent);
+  border-color: #3a80d2;
+  box-shadow: 0 6px 0 #2c6aa0;
+}
+
+.start-btn-random:active {
+  box-shadow: 0 2px 0 #2c6aa0;
+}
+
+.start-btn-random:disabled {
+  box-shadow: 0 3px 0 #2c6aa0;
+}
+
+/* ---------- stop button ---------- */
+.stop-btn {
+  color: #b33a3a;
+  border-color: #f0c6c6;
+  background: #fff5f5;
+}
+
+.stop-btn:hover {
+  background: #ffe8e8;
+  border-color: #e88a8a;
+}
+
+/* ---------- RESPONSIVE tweak for 3-button action row ---------- */
+@media (max-width: 600px) {
+  .start-btn-group {
+    flex-direction: column;
+  }
+  .start-btn-group .start-btn {
+    max-width: 100%;
+  }
+}

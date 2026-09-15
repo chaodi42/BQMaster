@@ -273,6 +273,9 @@
   // ---------- SPEECH (Web Speech API) with pauses ----------
   // Sequence: Question_Type → 3s pause → "Question" → 2s pause → Question content
   function speakQuestion() {
+     const PAUSE_AFTER_TYPE = 2000;    // pause after question type
+     const PAUSE_AFTER_LABEL = 2000;   // pause after the word "Question"
+     
     if (!filteredQuestions.length) return;
 
     // Cancel any ongoing speech
@@ -311,11 +314,11 @@
         labelUtterance.onend = function() {
           setTimeout(function() {
             synth.speak(makeUtterance(questionText));
-          }, 2000);
+          }, PAUSE_AFTER_LABEL);
         };
 
         synth.speak(labelUtterance);
-      }, 3000);
+      }, PAUSE_AFTER_TYPE);
     };
 
     synth.speak(typeUtterance);

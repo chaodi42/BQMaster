@@ -7,7 +7,8 @@
 
   // ---------- CONFIG ----------
   // Published Google Form CSV URL
-  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTv3ZwrZ0bWiR0k0lOUm4Qo8oK4QFH6XiePNOMFyLsPteb4im0FOx7DFidcOJAeItdkccGbq2jce-bQ/pub?gid=0&single=true&output=csv';
+  // The &v=2 parameter forces a fresh copy if headers were recently changed.
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTv3ZwrZ0bWiR0k0lOUm4Qo8oK4QFH6XiePNOMFyLsPteb4im0FOx7DFidcOJAeItdkccGbq2jce-bQ/pub?gid=0&single=true&output=csv&v=2';
 
   // ---------- SAMPLE CSV (fallback if fetch fails) ----------
   const SAMPLE_CSV = `Question_ID,Question_Type_ID,Bible_Verse,Question_Type,Question,Answer
@@ -66,7 +67,7 @@
       const line = lines[i].trim();
       if (!line) continue;
 
-      // parse with quote awareness
+      // parse with quote awareness (handles commas inside quotes)
       const values = [];
       let insideQuote = false;
       let current = '';
@@ -97,6 +98,18 @@
     return rows;
   }
 
+  // ---------- FIELD HELPER (case/space/underscore-insensitive) ----------
+  // Lets us match 'Question_Type', 'Question Type', 'question_type', etc.
+  function getField(q, fieldName) {
+    if (!q) return '';
+    const target = fieldName.toLowerCase().replace(/[\s_]/g, '');
+    for (const key in q) {
+      const cleanKey = key.toLowerCase().replace(/[\s_]/g, '');
+      if (cleanKey === target) return q[key];
+    }
+    return '';
+  }
+
   // ---------- EXTRACT CHAPTER/VERSE FROM Bible_Verse ----------
   function parseVerseReference(verseStr) {
     if (!verseStr) return { chapter: NaN, verse: NaN };
@@ -117,7 +130,7 @@
     const verseMap = new Map(); // chapter -> Set of verses
 
     questions.forEach(q => {
-      const ref = parseVerseReference(q.Bible_Verse);
+      const ref = parseVerseReference(getField(q, 'Bible_Verse'));
       if (!isNaN(ref.chapter)) {
         chapterSet.add(ref.chapter);
         if (!verseMap.has(ref.chapter)) verseMap.set(ref.chapter, new Set());
@@ -183,7 +196,7 @@
     if (isNaN(sCh) || isNaN(sVs) || isNaN(eCh) || isNaN(eVs)) return [];
 
     return allQuestions.filter(q => {
-      const ref = parseVerseReference(q.Bible_Verse);
+      const ref = parseVerseReference(getField(q, 'Bible_Verse'));
       if (isNaN(ref.chapter) || isNaN(ref.verse)) return false;
 
       const startKey = sCh * 1000 + sVs;
@@ -211,24 +224,35 @@
     }
 
     const q = filteredQuestions[currentIndex];
-    qTypeEl.textContent = q.Question_Type || 'Question';
-    qVerseEl.textContent = q.Bible_Verse || '—';
-    qTextEl.textContent = q.Question || '—';
 
+    // Use case/space-insensitive field lookups so any header spelling works
+    const typeValue = getField(q, 'Question_Type') || 'Question';
+    const verseValue = getField(q, 'Bible_Verse') || '—';
+    const questionValue = getField(q, 'Question') || '—';
+    const answerValue = getField(q, 'Answer') || '—';
+
+    qTypeEl.textContent = typeValue;
+    qVerseEl.textContent = verseValue;
+    qTextEl.textContent = questionValue;
+
+    // Reset answer visibility on every new question
     answerContainer.classList.add('hidden');
     showAnswerBtn.classList.remove('hidden-answer');
     showAnswerBtn.innerHTML = '<span class="icon">🔍</span> Show Answer';
     answerVisible = false;
 
+    // Progress bar
     const total = filteredQuestions.length;
     const currentNum = currentIndex + 1;
     progressText.textContent = `${currentNum} / ${total}`;
     progressFill.style.width = `${(currentNum / total) * 100}%`;
 
+    // Nav button states
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex === total - 1;
 
-    aTextEl.textContent = q.Answer || '—';
+    // Pre-fill answer content (hidden until toggled)
+    aTextEl.textContent = answerValue;
   }
 
   // ---------- SHOW ANSWER TOGGLE ----------
@@ -255,8 +279,8 @@
     if (synth.speaking) synth.cancel();
 
     const q = filteredQuestions[currentIndex];
-    const questionType = (q.Question_Type || '').trim();
-    const questionText = (q.Question || '').trim();
+    const questionType = (getField(q, 'Question_Type') || '').trim();
+    const questionText = (getField(q, 'Question') || '').trim();
 
     // Helper to build an utterance with consistent settings
     function makeUtterance(text) {
@@ -269,16 +293,16 @@
 
     // If there's no question type, just read the question content after 2s
     if (!questionType) {
-      setTimeout(() => {
+      setTimeout(function() {
         synth.speak(makeUtterance(questionText));
       }, 2000);
       return;
     }
 
-    // Step 1: Speak question type
+    // Step 1: Speak the question type
     const typeUtterance = makeUtterance(questionType);
 
-    // When type finishes speaking → wait 3s → speak "Question"
+    // When type finishes → wait 3s → speak "Question"
     typeUtterance.onend = function() {
       setTimeout(function() {
         const labelUtterance = makeUtterance('Question');
@@ -350,15 +374,21 @@
       const rows = parseCSV(csvText);
       if (rows.length === 0) throw new Error('No data rows found');
 
+      // Normalize column names (trim only; getField handles the rest)
       allQuestions = rows.map(r => {
         const normalized = {};
-        Object.keys(r).forEach(k => { normalized[k.trim()] = r[k]; });
+        Object.keys(r).forEach(k => {
+          normalized[k.trim()] = r[k];
+        });
         return normalized;
       });
 
-      // Sanity check for required columns
+      // Sanity check for required columns (case-insensitive)
       const first = allQuestions[0];
-      if (!first.hasOwnProperty('Bible_Verse') || !first.hasOwnProperty('Question')) {
+      const keys = Object.keys(first);
+      const hasVerse = keys.some(k => k.toLowerCase().replace(/[\s_]/g, '') === 'bibleverse');
+      const hasQuestion = keys.some(k => k.toLowerCase().replace(/[\s_]/g, '') === 'question');
+      if (!hasVerse || !hasQuestion) {
         throw new Error('CSV missing required columns (Bible_Verse / Question)');
       }
 

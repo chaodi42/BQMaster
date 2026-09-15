@@ -33,6 +33,8 @@
   const errorEl = document.getElementById('errorContainer');
   const filterPanel = document.getElementById('filterPanel');
   const quizPanel = document.getElementById('quizPanel');
+  const startRandomBtn = document.getElementById('startRandomBtn');
+  const stopSpeakBtn = document.getElementById('stopSpeakBtn');
 
   // quiz display elements
   const qTypeEl = document.getElementById('qType');
@@ -131,7 +133,7 @@
 
     questions.forEach(q => {
       const ref = parseVerseReference(getField(q, 'Bible_Verse'));
-      if (!isNaN(ref.chapter)) {
+      if (!isNaN(ref.chapter)) {   
         chapterSet.add(ref.chapter);
         if (!verseMap.has(ref.chapter)) verseMap.set(ref.chapter, new Set());
         if (!isNaN(ref.verse)) verseMap.get(ref.chapter).add(ref.verse);
@@ -184,6 +186,7 @@
     endChapter.addEventListener('change', () => updateVerseDropdown(endChapter, endVerse, false));
 
     startBtn.disabled = false;
+    startRandomBtn.disabled = false;
   }
 
   // ---------- FILTER QUESTIONS BY CHAPTER/VERSE RANGE ----------
@@ -323,10 +326,26 @@
 
     synth.speak(typeUtterance);
   }
+  // ---------- STOP SPEECH ----------
+  function stopSpeaking() {
+    if (synth.speaking || synth.pending) {
+      synth.cancel();
+    }
+  }
 
+  // ---------- SHUFFLE (Fisher–Yates) ----------
+  function shuffleArray(arr) {
+    const a = arr.slice(); // don't mutate original
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
   // ---------- START QUIZ ----------
-  function startQuiz() {
-    filteredQuestions = filterQuestions();
+  function startQuiz(randomOrder) {
+    const base = filterQuestions();
+    filteredQuestions = randomOrder ? shuffleArray(base) : base;
     currentIndex = 0;
     answerVisible = false;
 
@@ -334,7 +353,6 @@
     quizPanel.classList.add('active');
     renderQuestion();
   }
-
   // ---------- NAVIGATION ----------
   function goPrev() {
     if (currentIndex > 0) {
@@ -408,12 +426,14 @@
   }
 
   // ---------- EVENT LISTENERS ----------
-  startBtn.addEventListener('click', startQuiz);
+  startBtn.addEventListener('click', () => startQuiz(false));
+  startRandomBtn.addEventListener('click', () => startQuiz(true));
   showAnswerBtn.addEventListener('click', toggleAnswer);
   prevBtn.addEventListener('click', goPrev);
   nextBtn.addEventListener('click', goNext);
   speakBtn.addEventListener('click', speakQuestion);
-
+  stopSpeakBtn.addEventListener('click', stopSpeaking); 
+   
   window.addEventListener('beforeunload', () => {
     if (synth.speaking) synth.cancel();
   });

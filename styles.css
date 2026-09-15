@@ -138,7 +138,7 @@ h1 span {
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
 }
 
-/* start button */
+/* start button (base styles) */
 .start-btn {
   background: var(--green-accent);
   border: none;
@@ -503,65 +503,90 @@ h1 span {
   color: #b33a3a;
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
 @media (max-width: 600px) {
   .app-container {
     padding: 1.2rem 1rem;
     border-radius: 28px;
   }
+
   h1 {
     font-size: 1.8rem;
   }
+
   .question-text {
     font-size: 1.2rem;
   }
+
   .filter-grid {
     gap: 0.8rem;
   }
+
   .filter-item {
     min-width: 100%;
   }
+
   .action-row {
     flex-direction: column;
   }
-  .speaker-btn, .show-answer-btn {
+
+  .speaker-btn,
+  .show-answer-btn {
     max-width: 100%;
     width: 100%;
   }
+
   .nav-btn {
     max-width: 45%;
     padding: 0.7rem 0.8rem;
   }
+
   .quiz-card {
     padding: 1.2rem;
   }
-  .badge-type, .badge-verse {
+
+  .badge-type,
+  .badge-verse {
     font-size: 0.75rem;
   }
 
-  /* Shrink the start buttons on mobile */
+  /* ---------- MOBILE: compact start buttons ---------- */
+  /* Key fix: remove flex-basis:200px which becomes HEIGHT in column layout */
   .start-btn-group {
     flex-direction: column;
+    gap: 0.6rem;
   }
+
   .start-btn-group .start-btn {
+    flex: 0 0 auto !important;   /* ← critical fix */
+    width: 100%;
     max-width: 100%;
-    padding: 0.35rem 1rem;
-    font-size: 0.95rem;
-    box-shadow: 0 3px 0 #3d8b40;
-    min-height: unset;
+    padding: 0.35rem 1rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+    min-height: 0 !important;
+    box-shadow: 0 3px 0 #3d8b40 !important;
   }
+
   .start-btn-group .start-btn-random {
-    box-shadow: 0 3px 0 #2c6aa0;
+    box-shadow: 0 3px 0 #2c6aa0 !important;
   }
+
   .start-btn-group .start-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 #3d8b40;
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 #3d8b40 !important;
   }
+
   .start-btn-group .start-btn-random:active {
-    box-shadow: 0 1px 0 #2c6aa0;
+    box-shadow: 0 1px 0 #2c6aa0 !important;
   }
+
   .start-btn-group .start-btn .icon {
-    font-size: 0.95rem;
+    font-size: 0.95rem !important;
+    line-height: 1 !important;
   }
 
   /* Shrink Start Over button on mobile */
@@ -570,6 +595,7 @@ h1 span {
     font-size: 0.95rem;
     box-shadow: 0 2px 0 var(--blue-soft);
   }
+
   .start-over-btn:active {
     transform: translateY(2px);
   }
@@ -590,36 +616,4 @@ h1 span {
 .icon {
   font-size: 1.2rem;
   line-height: 1;
-}
-
-/* ---------- MOBILE: force compact start buttons ---------- */
-@media (max-width: 600px) {
-  .start-btn-group .start-btn,
-  .filter-section .start-btn-group .start-btn,
-  .start-btn-group button.start-btn {
-    padding: 0.3rem 0.9rem !important;
-    font-size: 0.9rem !important;
-    line-height: 1.2 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    gap: 0.35rem !important;
-    box-shadow: 0 2px 0 #3d8b40 !important;
-  }
-
-  .start-btn-group .start-btn-random,
-  .filter-section .start-btn-group .start-btn-random,
-  .start-btn-group button.start-btn-random {
-    box-shadow: 0 2px 0 #2c6aa0 !important;
-  }
-
-  .start-btn-group .start-btn:active,
-  .start-btn-group .start-btn-random:active {
-    transform: translateY(2px) !important;
-    box-shadow: 0 0 0 transparent !important;
-  }
-
-  .start-btn-group .start-btn .icon {
-    font-size: 0.9rem !important;
-    line-height: 1 !important;
-  }
 }

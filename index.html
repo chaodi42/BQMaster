@@ -31,9 +31,14 @@
           <select id="endVerse" aria-label="End verse"></select>
         </div>
       </div>
-      <button id="startQuizBtn" class="start-btn" disabled>
-        <span class="icon">▶</span> Start Quizzing!
-      </button>
+      <div class="start-btn-group">
+        <button id="startQuizBtn" class="start-btn" disabled>
+          <span class="icon">▶</span> Start Quizzing!
+        </button>
+        <button id="startRandomBtn" class="start-btn start-btn-random" disabled>
+          <span class="icon">🔀</span> Random Order
+        </button>
+      </div>
     </div>
 
     <!-- ========== LOADING / ERROR ========== -->
@@ -57,6 +62,9 @@
         <div class="action-row">
           <button id="speakBtn" class="speaker-btn" aria-label="Read question aloud">
             <span class="icon">🔊</span> Read
+          </button>
+          <button id="stopSpeakBtn" class="speaker-btn stop-btn" aria-label="Stop reading">
+            <span class="icon">⏹</span> Stop
           </button>
           <button id="showAnswerBtn" class="show-answer-btn hidden-answer">
             <span class="icon">🔍</span> Show Answer
